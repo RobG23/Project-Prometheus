@@ -1,0 +1,34 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Constants
+HR = 75  # Heart rate (beats per minute)
+SV = 70  # Stroke volume (ml/beat)
+MAP = 93  # Mean arterial pressure (mmHg)
+SVR = 20  # Systemic vascular resistance (mmHg.min/l)
+CVP = 2  # Central venous pressure (mmHg)
+MSFP = 7  # Mean systemic filling pressure (mmHg)
+
+# Derived values
+CO = HR * SV / 1000  # Cardiac output (l/min)
+
+# Time array (50ms steps for 1 minute)
+t = np.arange(0, 60, 0.05)
+
+# Arrays to store calculated values
+P_aorta = np.zeros_like(t)  # Aortic pressure
+P_vena_cava = np.zeros_like(t)  # Vena cava pressure
+
+# Windkessel model
+for i in range(1, len(t)):
+    # Update pressures
+    P_aorta[i] = MAP + SVR * (CO - (P_aorta[i-1] - MSFP) / SVR)
+    P_vena_cava[i] = MSFP + (P_vena_cava[i-1] - MSFP) * np.exp(-0.05 / SVR)
+
+# Plot results
+plt.plot(t, P_aorta, label='Aortic pressure')
+plt.plot(t, P_vena_cava, label='Vena cava pressure')
+plt.xlabel('Time (s)')
+plt.ylabel('Pressure (mmHg)')
+plt.legend()
+plt.show()
